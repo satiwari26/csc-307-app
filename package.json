@@ -4,12 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cd ./packages/react-frontend && npm run dev",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "cd ./packages/react-frontend && npm install"
   },
   "author": "",
   "license": "ISC"
   ,
   "workspaces": [
-      "packages/*"
+      "packages"
   ]
 }
