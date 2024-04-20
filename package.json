@@ -7,12 +7,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
-  ,
+  "license": "ISC",
   "private": true,
   "workspaces": [
-      "packages/*",
-      "react-frontend",
-      "express-backend"
-  ]
+    "packages/*"
+  ],
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
 }
