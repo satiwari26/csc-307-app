@@ -1,7 +1,10 @@
 import express from "express";
+import cors from "cors";
 
 const app = express();
 const port = 8000;
+
+app.use(cors());
 
 app.use(express.json());
 
@@ -44,16 +47,24 @@ const addUser = (user) => {
     users["users_list"].push(user);
     return user;
 };
-  
+
+/**
+ * @brief Add a user to the list of users
+ * send status 201 if successful
+ */
 app.post("/users", (req, res) => {
-const userToAdd = req.body;
-addUser(userToAdd);
-res.send();
+    const userToAdd = {
+        id: Math.random(),  //add the random id if needed
+        name: req.body.name,
+        job: req.body.job
+    };
+    addUser(userToAdd);
+    res.status(201).send(userToAdd);
 });
 
 app.listen(port, () => {
   console.log(
-    `Example app listening at http://localhost:${port}`
+    `app listening at http://localhost:${port}`
   );
 });
 
