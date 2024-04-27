@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import userServices from "./user-services.js";
 
 const app = express();
 const port = 8000;
@@ -11,55 +12,64 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
-const findUserByName = (name) => {
-    return users["users_list"].filter(
-      (user) => user["name"] === name
-    );
-  };
   
-  app.get("/users", (req, res) => {
-    const name = req.query.name;
-    if (name != undefined) {
-      let result = findUserByName(name);
-      result = { users_list: result };
-      res.send(result);
+app.get("/users", async (req, res) => {
+  const { name, job } = req.query;
+  const users = await userServices.getUsers(name, job);
+  res.send({ users_list: users });
+});
+
+app.get("/users/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const user = await userServices.findUserById(id);
+
+    if (!user) {
+      res.status(404).send("Resource not found.");
     } else {
-      res.send(users);
+      res.send(user);
     }
-  });
-
-const findUserById = (id) =>
-users["users_list"].find((user) => user["id"] === id);
-
-app.get("/users/:id", (req, res) => {
-  const id = req.params["id"]; //or req.params.id
-  let result = findUserById(id);
-  if (result === undefined) {
-    res.status(404).send("Resource not found.");
-  } else {
-    res.send(result);
+  } catch (error) {
+    res.status(500).send({ message: 'Error finding user', error: error });
   }
 });
 
+/**
+ * @deletes the user with the given id
+ */
+app.delete("/users/:id", async (req, res) => {
+  const id = req.params.id;
 
-const addUser = (user) => {
-    users["users_list"].push(user);
-    return user;
-};
+  try {
+    const deletedUser = await userServices.deleteUser(id);
+
+    if (!deletedUser) {
+      res.status(404).send("Resource not found.");
+    } else {
+      res.send(deletedUser);
+    }
+  } catch (error) {
+    res.status(500).send({ message: 'Error deleting user', error: error });
+  }
+});
 
 /**
  * @brief Add a user to the list of users
  * send status 201 if successful
  */
-app.post("/users", (req, res) => {
-    const userToAdd = {
-        id: Math.random(),  //add the random id if needed
-        name: req.body.name,
-        job: req.body.job
-    };
-    addUser(userToAdd);
-    res.status(201).send(userToAdd);
+app.post("/users", async (req, res) => {
+  const userToAdd = {
+    name: req.body.name,
+    job: req.body.job
+  };
+
+  try {
+    const addedUser = await userServices.addUser(userToAdd);
+    res.status(201).send(addedUser);
+  } catch (error) {
+    res.status(500).send({ message: 'Error adding user', error: error });
+  }
 });
 
 app.listen(port, () => {
@@ -67,33 +77,3 @@ app.listen(port, () => {
     `app listening at http://localhost:${port}`
   );
 });
-
-const users = {
-    users_list: [
-      {
-        id: "xyz789",
-        name: "Charlie",
-        job: "Janitor"
-      },
-      {
-        id: "abc123",
-        name: "Mac",
-        job: "Bouncer"
-      },
-      {
-        id: "ppp222",
-        name: "Mac",
-        job: "Professor"
-      },
-      {
-        id: "yat999",
-        name: "Dee",
-        job: "Aspring actress"
-      },
-      {
-        id: "zap555",
-        name: "Dennis",
-        job: "Bartender"
-      }
-    ]
-  };

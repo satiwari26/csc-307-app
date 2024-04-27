@@ -5,12 +5,24 @@ import Form from "./Form";
 function MyApp() {
   const [characters, setCharacters] = useState([]);
 
-    function removeOneCharacter(index) {
-        const updated = characters.filter((character, i) => {
-        return i !== index;
-        });
+  async function removeOneCharacter(index) {
+    const characterToRemove = characters[index];
+  
+    try {
+      const response = await fetch(`http://localhost:8000/users/${characterToRemove._id}`, {
+        method: "DELETE",
+      });
+  
+      if (response.status === 200) {
+        const updated = characters.filter((character, i) => i !== index);
         setCharacters(updated);
+      } else {
+        console.log('Error removing character:', response);
+      }
+    } catch (error) {
+      console.log('Error removing character:', error);
     }
+  }
 
     /**
      * 
